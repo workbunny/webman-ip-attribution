@@ -6,7 +6,7 @@ namespace workbunny\IpLocation;
 use GeoIp2\Database\Reader;
 use GeoIp2\Exception\AddressNotFoundException;
 use MaxMind\Db\Reader\InvalidDatabaseException;
-use Sunsgne\IpLocation\exception\IpLocationException;
+use workbunny\IpLocation\exception\IpLocationException;
 
 /**
  * @desc  根据ip获取归宿地
