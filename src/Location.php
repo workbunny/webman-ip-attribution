@@ -1,12 +1,16 @@
 <?php
 declare(strict_types=1);
 
-namespace workbunny\IpLocation;
+namespace Workbunny\WebmanIpAttribution;
 
 use GeoIp2\Database\Reader;
 use GeoIp2\Exception\AddressNotFoundException;
+use GeoIp2\Model\Asn;
+use GeoIp2\Model\City;
+use GeoIp2\Model\Country;
+use Workbunny\WebmanIpAttribution\Exceptions\IpAttributionException;
+use InvalidArgumentException;
 use MaxMind\Db\Reader\InvalidDatabaseException;
-use workbunny\IpLocation\exception\IpLocationException;
 
 /**
  * @desc  根据ip获取归宿地
@@ -15,174 +19,146 @@ use workbunny\IpLocation\exception\IpLocationException;
  */
 class Location
 {
-
+    const DB_CITY = 'city';
+    const DB_COUNTRY = 'country';
+    const DB_ASN = 'asn';
 
     /** @var string  ip数据库文件路径 */
     protected string $path;
 
-    /** @var array|mixed|string[] 语言 */
-    protected array $language = ['zh-CN'];
+    /** @var string[] 语言 */
+    protected array $language;
 
-    /** @var string|mixed */
-    protected string $defaultIdentifier = "--";
+    /** @var string */
+    protected string $default;
 
-    /** @var null[] */
-    protected static $readers
+    /** @var Reader[] */
+    protected static array $readers = [];
+
+    /** @var string[]  */
+    protected array $db
         = [
-            "city"    => null,
-            "asn"     => null,
-            "country" => null
-        ];
-
-    /** @var array|string[]  */
-    protected array $mmdb
-        = [
-            "city"    => "/GeoLite2-City.mmdb",
-            "asn"     => "/GeoLite2-ASN.mmdb",
-            "country" => "/GeoLite2-Country.mmdb",
+            self::DB_CITY    => "/GeoLite2-City.mmdb",
+            self::DB_ASN     => "/GeoLite2-ASN.mmdb",
+            self::DB_COUNTRY => "/GeoLite2-Country.mmdb",
         ];
 
 
-    public function __construct()
+    /**
+     * @param array|null $config = [
+     *  'default'  => '--',
+     *  'language' => ['zh-CN'],
+     *  'db-country' => './src/GeoLite2-Country.mmdb',
+     *  'db-city'    => './src/GeoLite2-Country.mmdb',
+     *  'db-asn'     => './src/GeoLite2-Country.mmdb',
+     * ]
+     */
+    public function __construct(?array $config = null)
     {
         /** @var  *path geoip2数据库文件路径 */
-        $this->path = dirname(__DIR__) . "/src/libs";
+        $this->path = dirname(__DIR__) . "/src/database";
+        $config = $config ?? config("plugin.workbunny.webman-ip-attribution.app", []);
 
-        if (function_exists('config')) {
-            $default = config("plugin.sunsgne.ip-location.app.config") ?? "default";
-            $config  = config("plugin.sunsgne.ip-location.app." . $default) ?? [];
+        $this->language = $config['language'] ?? ['en'];
+        $this->default = $config['default'] ?? '--';
 
-            $this->language = isset($config["language"])
-                ? (!empty($config["language"]) ? $config["language"] : $this->language)
-                : $this->language;
-
-            $this->path = isset($config["mdbFileDir"])
-                ? (!empty($config["mdbFileDir"]) ? $config["mdbFileDir"] : $this->path)
-                : $this->path;
-
-            $this->defaultIdentifier = isset($config["defaultIdentifier"])
-                ? (!empty($config["defaultIdentifier"]) ? $config["defaultIdentifier"] : $this->defaultIdentifier)
-                : $this->defaultIdentifier;
-
-            /** 构造mmdb */
-            $this->mmdb["asn"] = isset($config["mmdb"]["asn"])
-                ? (!empty($config["mmdb"]["asn"]) ? $config["mmdb"]["asn"] : $this->mmdb["asn"])
-                : $this->mmdb["asn"];
-
-            $this->mmdb["city"] = isset($config["mmdb"]["city"])
-                ? (!empty($config["mmdb"]["city"]) ? $config["mmdb"]["city"] : $this->mmdb["city"])
-                : $this->mmdb["city"];
-
-            $this->mmdb["country"] = isset($config["mmdb"]["country"])
-                ? (!empty($config["mmdb"]["country"]) ? $config["mmdb"]["country"] : $this->mmdb["country"])
-                : $this->mmdb["country"];
-        }
-
+        $this->db[self::DB_COUNTRY] = $config['db-country'] ?? $this->db[self::DB_COUNTRY];
+        $this->db[self::DB_CITY] = $config['db-city'] ?? $this->db[self::DB_CITY];
+        $this->db[self::DB_ASN] = $config['db-asn'] ?? $this->db[self::DB_ASN];
     }
 
     /**
-     * @param string $dbName
-     * @param string $readerType
-     * @return void
+     * @param string $db
+     * @return Reader
      * @throws InvalidDatabaseException
-     * @datetime 2022/9/15 15:01
-     * @author zhulianyou
+     * @datetime 2022/09/15 21:24
+     * @author chaz6chez<chaz6chez1993@outlook.com>
      */
-    private function instance(string $dbName, string $readerType)
+    public function getReader(string $db): Reader
     {
-        if (!(self::$readers[$readerType] instanceof Reader)) {
-            self::$readers[$readerType] = new Reader($this->path . $dbName, $this->language);
+        if(!(self::$readers[$db] ?? null) instanceof Reader){
+            self::$readers[$db] = new Reader($this->path . '/' . $this->db[$db], $this->language);
         }
+        return self::$readers[$db];
     }
 
 
     /**
-     * @param string $ipAddress
+     * @param string $ip
      * @return array
      * @datetime 2022/9/14 18:55
      * @author sunsgne
      */
-    public function getLocation(string $ipAddress): array
+    public function getLocation(string $ip): array
     {
         return [
-            "country" => $this->country($ipAddress),
-            "city"    => $this->city($ipAddress),
-            "asn"     => $this->asn($ipAddress)
+            self::DB_COUNTRY => $this->country($ip)->country->name ?? $this->default,
+            self::DB_CITY    => $this->city($ip)->city->name,
+            self::DB_ASN     => $this->asn($ip)->autonomousSystemOrganization
         ];
     }
 
 
     /**
-     * @param string $ipAddress
-     * @return string
+     * @param string $ip
+     * @return City
      * @datetime 2022/9/14 17:22
      * @author sunsgne
      */
-    public function city(string $ipAddress): string
+    public function city(string $ip): City
     {
-
-        $this->verifyIp($ipAddress);
-        try {
-            $this->instance($this->mmdb["city"], "city");
-            $record = self::$readers["city"]->city($ipAddress);
-
-            return $record->city->name ?? $this->defaultIdentifier;
-        } catch (InvalidDatabaseException|AddressNotFoundException $e) {
-            throw new IpLocationException($e->getMessage(), $e->getCode());
-        }
-    }
-
-
-    /**
-     * @param string $ipAddress
-     * @return false|mixed|string
-     * @datetime 2022/9/14 18:44
-     * @author sunsgne
-     */
-    public function asn(string $ipAddress)
-    {
-
-        $this->verifyIp($ipAddress);
-        try {
-            $this->instance($this->mmdb["asn"], "asn");
-            $record = self::$readers["asn"]->asn($ipAddress);
-            return $record->autonomousSystemOrganization ?? $this->defaultIdentifier;
-        } catch (AddressNotFoundException|InvalidDatabaseException $e) {
-            throw new IpLocationException($e->getMessage(), $e->getCode());
+        if(filter_var($ip, FILTER_VALIDATE_IP)){
+            try {
+                return $this->getReader(self::DB_CITY)->city($ip);
+            } catch (InvalidDatabaseException $e) {
+                throw new IpAttributionException( 'Reader Exceptions. ', -1, $e);
+            } catch (AddressNotFoundException $e){
+                throw new IpAttributionException( 'Ip Not Found. ', 0, $e);
+            }
+        }else{
+            throw new InvalidArgumentException( 'Ip Invalid. ', 1);
         }
     }
 
     /**
-     * @param string $ipAddress
-     * @return string
-     * @datetime 2022/9/14 18:44
+     * @param string $ip
+     * @return Asn
+     * @datetime 2022/9/14 17:22
      * @author sunsgne
      */
-    public function country(string $ipAddress): string
+    public function asn(string $ip): Asn
     {
-        $this->verifyIp($ipAddress);
-        try {
-            $this->instance($this->mmdb["country"], "country");
-            $record = self::$readers["country"]->country($ipAddress);
-
-            return $record->country->name ?? $this->defaultIdentifier;
-        } catch (AddressNotFoundException|InvalidDatabaseException $e) {
-            throw new IpLocationException($e->getMessage(), $e->getCode());
+        if(filter_var($ip, FILTER_VALIDATE_IP)){
+            try {
+                return $this->getReader(self::DB_ASN)->asn($ip);
+            } catch (InvalidDatabaseException $e) {
+                throw new IpAttributionException( 'Reader Exceptions. ', -1, $e);
+            } catch (AddressNotFoundException $e){
+                throw new IpAttributionException( 'Ip Not Found. ', 0, $e);
+            }
+        }else{
+            throw new InvalidArgumentException( 'Ip Invalid. ', 1);
         }
     }
 
-
     /**
-     * 验证IP是否合法
-     * @param string $ip ip地址（0.0.0.0-255.255.255.255）
-     * @datetime 2022/9/14 18:34
+     * @param string $ip
+     * @return Country
+     * @datetime 2022/9/14 17:22
      * @author sunsgne
      */
-    public function verifyIp(string $ip)
+    public function country(string $ip): Country
     {
-        if (false === (bool)preg_match('/^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:[.](?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/', $ip))
-        {
-            throw new IpLocationException('Please check whether the parameter ip address conforms to the ip number segment specification.');
+        if(filter_var($ip, FILTER_VALIDATE_IP)){
+            try {
+                return $this->getReader(self::DB_COUNTRY)->country($ip);
+            } catch (InvalidDatabaseException $e) {
+                throw new IpAttributionException( 'Reader Exceptions. ', -1, $e);
+            } catch (AddressNotFoundException $e){
+                throw new IpAttributionException( 'Ip Not Found. ', 0, $e);
+            }
+        }else{
+            throw new InvalidArgumentException( 'Ip Invalid. ', 1);
         }
     }
 }

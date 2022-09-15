@@ -1,5 +1,5 @@
 <?php
-namespace workbunny\IpLocation;
+namespace Workbunny\WebmanIpAttribution;
 
 class Install
 {
@@ -9,7 +9,7 @@ class Install
      * @var array
      */
     protected static $pathRelation = array (
-  'config/plugin/workbunny/ip-location' => 'config/plugin/workbunny/ip-location',
+  'config/plugin/workbunny/webman-ip-attribution' => 'config/plugin/workbunny/webman-ip-attribution',
 );
 
     /**
