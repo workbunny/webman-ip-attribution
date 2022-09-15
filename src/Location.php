@@ -175,11 +175,10 @@ class Location
     /**
      * 验证IP是否合法
      * @param string $ip ip地址（0.0.0.0-255.255.255.255）
-     * @return bool
      * @datetime 2022/9/14 18:34
      * @author sunsgne
      */
-    public function verifyIp(string $ip): bool
+    public function verifyIp(string $ip)
     {
         if (false === (bool)preg_match('/^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:[.](?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/', $ip))
         {
