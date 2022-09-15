@@ -56,7 +56,7 @@ class Location
     public function __construct(?array $config = null)
     {
         /** @var  *path geoip2数据库文件路径 */
-        $this->path = dirname(__DIR__) . "/src/database";
+        $this->path = dirname(__DIR__) . "/database";
         $config = $config ?? config("plugin.workbunny.webman-ip-attribution.app", []);
 
         $this->language = $config['language'] ?? ['en'];
