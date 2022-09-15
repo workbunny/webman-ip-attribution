@@ -115,7 +115,7 @@ return [
 ];
 
 ```
-
+### 应用
 ```php
 use workbunny\IpLocation\Location;
 
@@ -128,4 +128,9 @@ try {
  
  }
 ```
-
+### 运行
+```shell
+./webman start
+OR
+php start.php start
+```
