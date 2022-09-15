@@ -1,0 +1,16 @@
+{
+  "name": "sunsgne/ip-location",
+  "type": "library",
+  "license": "MIT",
+  "description": "Webman plugin sunsgne/ip-location",
+  "require": {
+    "php": ">=7.4",
+    "workerman/webman-framework": "1.4.3",
+    "geoip2/geoip2": "~2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Sunsgne\\IpLocation\\": "src"
+    }
+  }
+}
