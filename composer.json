@@ -1,8 +1,8 @@
 {
-  "name": "sunsgne/ip-location",
+  "name": "workbunny/ip-attribution",
   "type": "library",
   "license": "MIT",
-  "description": "Webman plugin sunsgne/ip-location",
+  "description": "Webman plugin workbunny/ip-attribution",
   "require": {
     "php": ">=7.4",
     "workerman/webman-framework": "1.4.3",
@@ -10,7 +10,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Sunsgne\\IpLocation\\": "src"
+      "workbunny\\IpLocation\\": "src"
     }
   }
 }

@@ -1,5 +1,5 @@
 <?php
-namespace Sunsgne\IpLocation;
+namespace workbunny\IpLocation;
 
 class Install
 {
@@ -9,7 +9,7 @@ class Install
      * @var array
      */
     protected static $pathRelation = array (
-  'config/plugin/sunsgne/ip-location' => 'config/plugin/sunsgne/ip-location',
+  'config/plugin/workbunny/ip-location' => 'config/plugin/workbunny/ip-location',
 );
 
     /**

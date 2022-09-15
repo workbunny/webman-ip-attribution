@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Sunsgne\IpLocation;
+namespace workbunny\IpLocation;
 
 use GeoIp2\Database\Reader;
 use GeoIp2\Exception\AddressNotFoundException;

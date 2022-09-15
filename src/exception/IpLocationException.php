@@ -1,6 +1,6 @@
 <?php
 
-namespace Sunsgne\IpLocation\exception;
+namespace workbunny\IpLocation\exception;
 
 class IpLocationException extends \RuntimeException
 {
