@@ -63,9 +63,7 @@ try {
 use workbunny\IpLocation\Location;
 
 try {
-
-    $location = Location::$instance;
-
+   $location = new Location();
     var_dump($location->city("1.1.1.1"));
     
  }catch (\workbunny\IpLocation\exception\IpLocationException $exception){
