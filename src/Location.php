@@ -17,8 +17,6 @@ class Location
 {
 
 
-    /** @var $instance */
-    static public $instance;
 
     /** @var string  ip数据库文件路径 */
     protected string $path;
@@ -27,6 +25,13 @@ class Location
     protected array $language = ['zh-CN'];
 
     protected string $defaultIdentifier = "--";
+
+    protected static $readers;
+
+    protected static $readerCity;
+    protected static $readerAsn;
+    protected static $readerCountry;
+
 
     private function __construct()
     {
@@ -52,19 +57,21 @@ class Location
 
     }
 
-    public static function getInstance(): Location
+    /**
+     * @param string $dbName
+     * @param string $readerType
+     * @return void
+     * @throws InvalidDatabaseException
+     * @datetime 2022/9/15 15:01
+     * @author zhulianyou
+     */
+    private function instance(string $dbName , string $readerType)
     {
-        if (!self::$instance instanceof self) {
-            self::$instance = new self;
+
+        if (!self::$readers[$readerType] instanceof Reader)
+        {
+            self::$readers[$readerType] = new Reader($this->path . $dbName , $this->language);
         }
-
-        return self::$instance;
-    }
-
-    private function __clone()
-    {
-        //...clone
-
     }
 
 
@@ -95,10 +102,17 @@ class Location
         if (false === $this->verifyIp($ipAddress)) {
             throw new IpLocationException('Please check whether the parameter ip address conforms to the ip number segment specification.');
         }
+
         try {
-            $reader = new Reader($this->path . '/GeoLite2-City.mmdb', ['zh-CN']);
-            $record = $reader->city($ipAddress);
-            return $record->city->name ?? $this->defaultIdentifier;
+            $this->instance( '/GeoLite2-City.mmdb' , "city");
+
+
+            $reader = self::$readers["city"]->city($ipAddress);
+
+
+//            $reader = new Reader($this->path . '/GeoLite2-City.mmdb', ['zh-CN']);
+//            $record = $reader->city($ipAddress);
+            return $reader->city->name ?? $this->defaultIdentifier;
         } catch (InvalidDatabaseException|AddressNotFoundException $e) {
             throw new IpLocationException($e->getMessage(), $e->getCode());
         }
