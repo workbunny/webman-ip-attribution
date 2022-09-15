@@ -1,0 +1,12 @@
+/.idea
+/.git
+/.vscode
+/vendor
+*.log
+.env
+*.yaml
+config.reload.lock
+/tests/tmp
+/tests/.phpunit.result.cache
+composer.lock
+start.php

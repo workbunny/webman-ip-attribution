@@ -1,0 +1,32 @@
+{
+  "name": "workbunny/webman-ip-attribution",
+  "type": "library",
+  "license": "MIT",
+  "description": "Webman plugin workbunny/webman-ip-attribution. ",
+  "authors": [
+    {
+      "name": "chaz6chez",
+      "email": "chaz6chez1993@outlook.com",
+      "homepage": "https://chaz6chez.cn"
+    },
+    {
+      "name": "sunsgneayo"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/workbunny/webman-ip-attribution/issues",
+    "source": "https://github.com/workbunny/webman-ip-attribution"
+  },
+  "require": {
+    "php": ">=7.4",
+    "geoip2/geoip2": "^2.0"
+  },
+  "require-dev": {
+    "workerman/webman-framework": "^1.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "Workbunny\\WebmanIpAttribution\\": "src"
+    }
+  }
+}
