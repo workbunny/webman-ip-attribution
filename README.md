@@ -116,3 +116,16 @@ return [
 
 ```
 
+```php
+use workbunny\IpLocation\Location;
+
+try {
+    $location = G(Location::class);
+    var_dump($location->country("1.1.1.1"));
+    var_dump($location->asn("1.1.1.1"));
+    var_dump($location->city("1.1.1.1"));
+ }catch (\workbunny\IpLocation\exception\IpLocationException $exception){
+ 
+ }
+```
+
