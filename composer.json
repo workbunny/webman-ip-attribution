@@ -1,8 +1,8 @@
 {
-  "name": "sunsgne/ip-attribution",
+  "name": "workbunny/ip-attribution",
   "type": "library",
   "license": "MIT",
-  "description": "Webman plugin sunsgne/ip-attribution",
+  "description": "Webman plugin workbunny/ip-attribution",
   "require": {
     "php": ">=7.4",
     "workerman/webman-framework": "1.4.3",
