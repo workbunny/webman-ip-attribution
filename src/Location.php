@@ -17,23 +17,33 @@ class Location
 {
 
 
-
     /** @var string  ip数据库文件路径 */
     protected string $path;
 
     /** @var array|mixed|string[] 语言 */
     protected array $language = ['zh-CN'];
 
+    /** @var string|mixed */
     protected string $defaultIdentifier = "--";
 
-    protected static $readers;
+    /** @var null[] */
+    protected static $readers
+        = [
+            "city"    => null,
+            "asn"     => null,
+            "country" => null
+        ];
 
-    protected static $readerCity;
-    protected static $readerAsn;
-    protected static $readerCountry;
+    /** @var array|string[]  */
+    protected array $mmdb
+        = [
+            "city"    => "/GeoLite2-City.mmdb",
+            "asn"     => "/GeoLite2-ASN.mmdb",
+            "country" => "/GeoLite2-Country.mmdb",
+        ];
 
 
-    private function __construct()
+    public function __construct()
     {
         /** @var  *path geoip2数据库文件路径 */
         $this->path = dirname(__DIR__) . "/src/libs";
@@ -53,6 +63,19 @@ class Location
             $this->defaultIdentifier = isset($config["defaultIdentifier"])
                 ? (!empty($config["defaultIdentifier"]) ? $config["defaultIdentifier"] : $this->defaultIdentifier)
                 : $this->defaultIdentifier;
+
+            /** 构造mmdb */
+            $this->mmdb["asn"] = isset($config["mmdb"]["asn"])
+                ? (!empty($config["mmdb"]["asn"]) ? $config["mmdb"]["asn"] : $this->mmdb["asn"])
+                : $this->mmdb["asn"];
+
+            $this->mmdb["city"] = isset($config["mmdb"]["city"])
+                ? (!empty($config["mmdb"]["city"]) ? $config["mmdb"]["city"] : $this->mmdb["city"])
+                : $this->mmdb["city"];
+
+            $this->mmdb["country"] = isset($config["mmdb"]["country"])
+                ? (!empty($config["mmdb"]["country"]) ? $config["mmdb"]["country"] : $this->mmdb["country"])
+                : $this->mmdb["country"];
         }
 
     }
@@ -65,12 +88,10 @@ class Location
      * @datetime 2022/9/15 15:01
      * @author zhulianyou
      */
-    private function instance(string $dbName , string $readerType)
+    private function instance(string $dbName, string $readerType)
     {
-
-        if (!self::$readers[$readerType] instanceof Reader)
-        {
-            self::$readers[$readerType] = new Reader($this->path . $dbName , $this->language);
+        if (!(self::$readers[$readerType] instanceof Reader)) {
+            self::$readers[$readerType] = new Reader($this->path . $dbName, $this->language);
         }
     }
 
@@ -99,20 +120,13 @@ class Location
      */
     public function city(string $ipAddress): string
     {
-        if (false === $this->verifyIp($ipAddress)) {
-            throw new IpLocationException('Please check whether the parameter ip address conforms to the ip number segment specification.');
-        }
 
+        $this->verifyIp($ipAddress);
         try {
-            $this->instance( '/GeoLite2-City.mmdb' , "city");
+            $this->instance($this->mmdb["city"], "city");
+            $record = self::$readers["city"]->city($ipAddress);
 
-
-            $reader = self::$readers["city"]->city($ipAddress);
-
-
-//            $reader = new Reader($this->path . '/GeoLite2-City.mmdb', ['zh-CN']);
-//            $record = $reader->city($ipAddress);
-            return $reader->city->name ?? $this->defaultIdentifier;
+            return $record->city->name ?? $this->defaultIdentifier;
         } catch (InvalidDatabaseException|AddressNotFoundException $e) {
             throw new IpLocationException($e->getMessage(), $e->getCode());
         }
@@ -127,13 +141,11 @@ class Location
      */
     public function asn(string $ipAddress)
     {
-        if (false === $this->verifyIp($ipAddress)) {
-            throw new IpLocationException('Please check whether the parameter ip address conforms to the ip number segment specification.');
-        }
 
+        $this->verifyIp($ipAddress);
         try {
-            $reader = new Reader($this->path . '/GeoLite2-ASN.mmdb', ['zh-CN']);
-            $record = $reader->asn($ipAddress);
+            $this->instance($this->mmdb["asn"], "asn");
+            $record = self::$readers["asn"]->asn($ipAddress);
             return $record->autonomousSystemOrganization ?? $this->defaultIdentifier;
         } catch (AddressNotFoundException|InvalidDatabaseException $e) {
             throw new IpLocationException($e->getMessage(), $e->getCode());
@@ -148,12 +160,11 @@ class Location
      */
     public function country(string $ipAddress): string
     {
-        if (false === $this->verifyIp($ipAddress)) {
-            throw new IpLocationException('Please check whether the parameter ip address conforms to the ip number segment specification.');
-        }
+        $this->verifyIp($ipAddress);
         try {
-            $reader = new Reader($this->path . '/GeoLite2-Country.mmdb', ['zh-CN']);
-            $record = $reader->country($ipAddress);
+            $this->instance($this->mmdb["country"], "country");
+            $record = self::$readers["country"]->country($ipAddress);
+
             return $record->country->name ?? $this->defaultIdentifier;
         } catch (AddressNotFoundException|InvalidDatabaseException $e) {
             throw new IpLocationException($e->getMessage(), $e->getCode());
@@ -170,6 +181,9 @@ class Location
      */
     public function verifyIp(string $ip): bool
     {
-        return (bool)preg_match('/^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:[.](?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/', $ip);
+        if (false === (bool)preg_match('/^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:[.](?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/', $ip))
+        {
+            throw new IpLocationException('Please check whether the parameter ip address conforms to the ip number segment specification.');
+        }
     }
 }
