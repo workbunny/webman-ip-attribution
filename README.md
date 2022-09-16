@@ -33,97 +33,127 @@ composer require workbunny/webman-ip-attribution
 ```
 ## 使用
 
-### 范例
-```php
-use Workbunny\WebmanIpAttribution\Location;
+### 配置
 
-try {
-     $location = new Location();
-    var_dump($location->getLocation("1.1.1.1"));
-    // array:3 [
-    //"country" => "韩国"
-    //"city" => null
-    //"asn" => "NAVER Cloud Corp."]
-]
-
-    
- }catch (\Workbunny\WebmanIpAttribution\exception\IpLocationException $exception){
- 
- }
-```
-
-### 获取IP所在城市
-```php
-use Workbunny\WebmanIpAttribution\Location;
-
-try {
-   $location = new Location();
-    var_dump($location->city("1.1.1.1")->city->name);
-    //string > 北京市
- }catch (\Workbunny\WebmanIpAttribution\exception\IpLocationException $exception){
- 
- }
-```
-### 获取IP地址ASN信息
-```php
-use Workbunny\WebmanIpAttribution\Location;
-
-try {
-    $location = new Location();
-    var_dump($location->asn("1.1.1.1")->autonomousSystemOrganization);
-    //string > NAVER Cloud Corp.
- }catch (\Workbunny\WebmanIpAttribution\exception\IpLocationException $exception){
- 
- }
-```
-### 获取IP所在国家
-```php
-use Workbunny\WebmanIpAttribution\Location;
-
-try {
-    $location = new Location();
-    var_dump($location->country("1.1.1.1")->country->name);
-    //string > 中国
- }catch (\Workbunny\WebmanIpAttribution\exception\IpLocationException $exception){
- 
- }
-```
-
-更多用法和示例参照[geoip2/geoip2](https://github.com/maxmind/GeoIP2-php)；
-
-
-## webman 中使用
-
-### config配置文件
+#### 1. 在Webman中使用app.php
 ```php
 return [
     'enable' => true,
     
-    'default'  => '--',
-    'language' => ['zh-CN'],
+    'default'  => '--',      // 缺省展示值
+    'language' => ['zh-CN'], // 语言
 
-    'db-country' => null,
-    'db-city'    => null,
-    'db-asn'     => null,
+    'db-country' => null,    // country库绝对地址
+    'db-city'    => null,    // city库绝对地址
+    'db-asn'     => null,    // asn库绝对地址
 ];
-
 ```
-### 应用
+
+#### 2. 在php-fpm中使用
 ```php
 use Workbunny\WebmanIpAttribution\Location;
 
+$location = new Location([
+    'default'  => '--',      // 缺省展示值
+    'language' => ['zh-CN'], // 语言
+    'db-country' => null,    // country库绝对地址
+    'db-city'    => null,    // city库绝对地址
+    'db-asn'     => null,    // asn库绝对地址
+]);
+```
+
+### 快速获取
+```php
+use Workbunny\WebmanIpAttribution\Location;
+use Workbunny\WebmanIpAttribution\Exceptions\IpAttributionException
+
 try {
-    $location = G(Location::class);
-    var_dump($location->country("1.1.1.1"));
-    var_dump($location->asn("1.1.1.1"));
-    var_dump($location->city("1.1.1.1"));
- }catch (\Workbunny\WebmanIpAttribution\exception\IpLocationException $exception){
+     $location = new Location();
+     var_dump($location->getLocation('8.8.8.8')); // ipv4
+     var_dump($location->getLocation('::0808:0808')); // ipv6
+//     [
+//         'country' => 'United States',
+//         'city' => '--',
+//         'asn' => 'GOOGLE',
+//         'continent' => 'North America',
+//         'timezone' => 'America/Chicago',
+//     ]
+ }catch (IpAttributionException $exception){
  
  }
 ```
-### 运行
-```shell
-./webman start
-OR
-php start.php start
+
+### 使用city库查询
+
+**注：City库包含了 大洲、国家、城市，但不包含网络运营商等相关信息**
+
+```php
+use Workbunny\WebmanIpAttribution\Location;
+use Workbunny\WebmanIpAttribution\Exceptions\IpAttributionException
+
+try {
+   $location = new Location();
+    var_dump($location->city('8.8.8.8')); // ipv4
+    var_dump($location->city('::0808:0808')); // ipv6
+    // 返回 GeoIp2\Model\City 对象
+    
+ }catch (IpAttributionException $exception){
+ 
+ }
 ```
+
+### 使用country库查询
+
+**注：Country库不包含城市及网络运营商等信息，通常使用City库即可，Country存在的意义在于较于City更轻**
+
+```php
+use Workbunny\WebmanIpAttribution\Location;
+use Workbunny\WebmanIpAttribution\Exceptions\IpAttributionException
+
+try {
+   $location = new Location();
+    var_dump($location->country('8.8.8.8')); // ipv4
+    var_dump($location->country('::0808:0808')); // ipv6
+    // 返回 GeoIp2\Model\Country 对象
+    
+ }catch (IpAttributionException $exception){
+ 
+ }
+```
+
+### 使用asn库查询
+
+**注：Asn库仅包含网络运营商等相关信息**
+
+```php
+use Workbunny\WebmanIpAttribution\Location;
+use Workbunny\WebmanIpAttribution\Exceptions\IpAttributionException
+
+try {
+   $location = new Location();
+    var_dump($location->asn('8.8.8.8')); // ipv4
+    var_dump($location->asn('::0808:0808')); // ipv6
+    // 返回 GeoIp2\Model\Asn 对象
+    
+ }catch (IpAttributionException $exception){
+ 
+ }
+```
+
+### 使用原始Reader操作
+
+**注：原始Reader可以直接使用 [geoip2/geoip2](https://github.com/maxmind/GeoIP2-php) 提供的方法操作相关的库**
+
+```php
+use Workbunny\WebmanIpAttribution\Location;
+
+$location = new Location();
+var_dump($location->createReader(Location::DB_CITY)); // City库
+// 返回连接City库的 GeoIp2\Database\Reader 对象
+var_dump($location->createReader(Location::DB_ASN)); // ASN库
+// 返回连接ASN库的 GeoIp2\Database\Reader 对象   
+var_dump($location->createReader(Location::DB_ASN)); // Country库
+// 返回连接Country库的 GeoIp2\Database\Reader 对象
+```
+
+更多用法和示例参照 [geoip2/geoip2](https://github.com/maxmind/GeoIP2-php)；
