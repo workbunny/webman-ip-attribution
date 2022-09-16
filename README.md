@@ -24,9 +24,10 @@
 
 ## 简介
 
-- `/database` 最后更新时间：2022-09-14 **(每周五通过小版本更新)**
+- 该插件自带ip本地库，存放于`/database`； 最后更新时间：2022-09-14 **(每周五通过小版本更新)**
 - `webman-ip-attribution` 是基于`geoip2`作为底层，依托 `mmdb数据库` 查询ip归属地及asn信息
 - 本项目基于[geoip2/geoip2](https://github.com/maxmind/GeoIP2-php)，感谢[MaxMind](https://github.com/maxmind) 工作组的开源
+
 ## 安装
 ```shell
 composer require workbunny/webman-ip-attribution
@@ -36,6 +37,9 @@ composer require workbunny/webman-ip-attribution
 ### 配置
 
 #### 1. 在Webman中使用app.php
+
+**注：配置可选填**
+
 ```php
 return [
     'enable' => true,
@@ -43,22 +47,25 @@ return [
     'default'  => '--',      // 缺省展示值
     'language' => ['zh-CN'], // 语言
 
-    'db-country' => null,    // country库绝对地址
-    'db-city'    => null,    // city库绝对地址
-    'db-asn'     => null,    // asn库绝对地址
+    'db-country' => null,    // 自定义的country库绝对地址
+    'db-city'    => null,    // 自定义的city库绝对地址
+    'db-asn'     => null,    // 自定义的asn库绝对地址
 ];
 ```
 
 #### 2. 在php-fpm中使用
+
+**注：配置可选填**
+
 ```php
 use Workbunny\WebmanIpAttribution\Location;
 
 $location = new Location([
     'default'  => '--',      // 缺省展示值
     'language' => ['zh-CN'], // 语言
-    'db-country' => null,    // country库绝对地址
-    'db-city'    => null,    // city库绝对地址
-    'db-asn'     => null,    // asn库绝对地址
+    'db-country' => null,    // 自定义的country库绝对地址
+    'db-city'    => null,    // 自定义的city库绝对地址
+    'db-asn'     => null,    // 自定义的asn库绝对地址
 ]);
 ```
 
