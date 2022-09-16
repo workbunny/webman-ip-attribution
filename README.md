@@ -50,8 +50,8 @@ composer require workbunny/webman-ip-attribution
 use Workbunny\WebmanIpAttribution\Location;
 
 try {
-    $location = Location::$instance;
-    var_dump($location->city("1.1.1.1"));
+     $location = new Location();
+    var_dump($location->getLocation("1.1.1.1"));
  }catch (\Workbunny\WebmanIpAttribution\exception\IpLocationException $exception){
  
  }
