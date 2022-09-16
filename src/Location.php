@@ -72,19 +72,32 @@ class Location
     }
 
     /**
-     * @param string $db
-     * @return Reader
-     * @throws InvalidDatabaseException
+     * @return Reader[]
      * @datetime 2022/09/15 21:24
      * @author chaz6chez<chaz6chez1993@outlook.com>
      */
-    public function getReader(string $db): Reader
+    public function getReaders(): array
+    {
+        return self::$readers;
+    }
+
+    /**
+     * @param string $db
+     * @return Reader
+     * @datetime 2022/09/15 21:24
+     * @author chaz6chez<chaz6chez1993@outlook.com>
+     */
+    public function createReader(string $db): Reader
     {
         if(!isset($this->db[$db])){
             throw new InvalidArgumentException('invalid db.', 1);
         }
         if(!(self::$readers[$db] ?? null) instanceof Reader){
-            self::$readers[$db] = new Reader($this->path . '/' . $this->db[$db], $this->language);
+            try {
+                self::$readers[$db] = new Reader($this->path . '/' . $this->db[$db], $this->language);
+            } catch (InvalidDatabaseException $e) {
+                throw new IpAttributionException( 'Reader Exceptions. ', -1, $e);
+            }
         }
         return self::$readers[$db];
     }
@@ -137,7 +150,7 @@ class Location
     {
         if(filter_var($ip, FILTER_VALIDATE_IP)){
             try {
-                return $this->getReader(self::DB_CITY)->city($ip);
+                return $this->createReader(self::DB_CITY)->city($ip);
             } catch (InvalidDatabaseException $e) {
                 throw new IpAttributionException( 'Reader Exceptions. ', -1, $e);
             } catch (AddressNotFoundException $e){
@@ -158,7 +171,7 @@ class Location
     {
         if(filter_var($ip, FILTER_VALIDATE_IP)){
             try {
-                return $this->getReader(self::DB_ASN)->asn($ip);
+                return $this->createReader(self::DB_ASN)->asn($ip);
             } catch (InvalidDatabaseException $e) {
                 throw new IpAttributionException( 'Reader Exceptions. ', -1, $e);
             } catch (AddressNotFoundException $e){
@@ -179,7 +192,7 @@ class Location
     {
         if(filter_var($ip, FILTER_VALIDATE_IP)){
             try {
-                return $this->getReader(self::DB_COUNTRY)->country($ip);
+                return $this->createReader(self::DB_COUNTRY)->country($ip);
             } catch (InvalidDatabaseException $e) {
                 throw new IpAttributionException( 'Reader Exceptions. ', -1, $e);
             } catch (AddressNotFoundException $e){
