@@ -93,8 +93,8 @@ class Location
     {
         return [
             self::DB_COUNTRY => $this->country($ip)->country->name ?? $this->default,
-            self::DB_CITY    => $this->city($ip)->city->name,
-            self::DB_ASN     => $this->asn($ip)->autonomousSystemOrganization
+            self::DB_CITY    => $this->city($ip)->city->name ?? $this->default,
+            self::DB_ASN     => $this->asn($ip)->autonomousSystemOrganization ?? $this->default
         ];
     }
 
