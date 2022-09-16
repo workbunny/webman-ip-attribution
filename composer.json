@@ -22,11 +22,18 @@
     "geoip2/geoip2": "^2.0"
   },
   "require-dev": {
-    "workerman/webman-framework": "^1.4"
+    "workerman/webman-framework": "^1.4",
+    "phpunit/phpunit": "^9.0",
+    "symfony/var-dumper": "^5.4"
   },
   "autoload": {
     "psr-4": {
       "Workbunny\\WebmanIpAttribution\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests"
     }
   }
 }

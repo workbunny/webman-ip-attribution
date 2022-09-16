@@ -43,7 +43,6 @@ class Location
             self::DB_COUNTRY => "/GeoLite2-Country.mmdb",
         ];
 
-
     /**
      * @param array|null $config = [
      *  'default'  => '--',
@@ -57,7 +56,11 @@ class Location
     {
         /** @var  *path geoip2数据库文件路径 */
         $this->path = dirname(__DIR__) . "/database";
-        $config = $config ?? config("plugin.workbunny.webman-ip-attribution.app", []);
+        $config = $config ?? (
+            function_exists('config') ?
+            config("plugin.workbunny.webman-ip-attribution.app", []) :
+            []
+        );
 
         $this->language = $config['language'] ?? ['en'];
         $this->default = $config['default'] ?? '--';
@@ -76,6 +79,9 @@ class Location
      */
     public function getReader(string $db): Reader
     {
+        if(!isset($this->db[$db])){
+            throw new InvalidArgumentException('invalid db.', 1);
+        }
         if(!(self::$readers[$db] ?? null) instanceof Reader){
             self::$readers[$db] = new Reader($this->path . '/' . $this->db[$db], $this->language);
         }
@@ -92,9 +98,11 @@ class Location
     public function getLocation(string $ip): array
     {
         return [
-            self::DB_COUNTRY => $this->country($ip)->country->name ?? $this->default,
-            self::DB_CITY    => $this->city($ip)->city->name,
-            self::DB_ASN     => $this->asn($ip)->autonomousSystemOrganization
+            self::DB_COUNTRY => ($city = $this->city($ip))->country->name ?? $this->default,
+            self::DB_CITY    => $city->city->name ?? $this->default,
+            self::DB_ASN     => $this->asn($ip)->autonomousSystemOrganization ?? $this->default,
+            'continent'      => $city->continent->name ?? $this->default,
+            'timezone'       => $city->location->timeZone ?? $this->default,
         ];
     }
 
@@ -116,7 +124,7 @@ class Location
                 throw new IpAttributionException( 'Ip Not Found. ', 0, $e);
             }
         }else{
-            throw new InvalidArgumentException( 'Ip Invalid. ', 1);
+            throw new InvalidArgumentException( 'Invalid ip. ', 1);
         }
     }
 
