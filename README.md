@@ -50,23 +50,28 @@ composer require workbunny/webman-ip-attribution
 use Workbunny\WebmanIpAttribution\Location;
 
 try {
+     $location = new Location();
+    var_dump($location->getLocation("1.1.1.1"));
+    // array:3 [
+    //"country" => "韩国"
+    //"city" => null
+    //"asn" => "NAVER Cloud Corp."]
+]
 
-    $location = Location::$instance;
-
-    var_dump($location->city("1.1.1.1"));
     
  }catch (\Workbunny\WebmanIpAttribution\exception\IpLocationException $exception){
  
  }
 ```
+
 ### 获取IP所在城市
 ```php
 use Workbunny\WebmanIpAttribution\Location;
 
 try {
    $location = new Location();
-    var_dump($location->city("1.1.1.1"));
-    
+    var_dump($location->city("1.1.1.1")->city->name);
+    //string > 北京市
  }catch (\Workbunny\WebmanIpAttribution\exception\IpLocationException $exception){
  
  }
@@ -77,7 +82,8 @@ use Workbunny\WebmanIpAttribution\Location;
 
 try {
     $location = new Location();
-    var_dump($location->asn("1.1.1.1"));
+    var_dump($location->asn("1.1.1.1")->autonomousSystemOrganization);
+    //string > NAVER Cloud Corp.
  }catch (\Workbunny\WebmanIpAttribution\exception\IpLocationException $exception){
  
  }
@@ -88,12 +94,14 @@ use Workbunny\WebmanIpAttribution\Location;
 
 try {
     $location = new Location();
-    var_dump($location->country("1.1.1.1"));
+    var_dump($location->country("1.1.1.1")->country->name);
+    //string > 中国
  }catch (\Workbunny\WebmanIpAttribution\exception\IpLocationException $exception){
  
  }
 ```
 
+更多用法和示例参照[geoip2/geoip2](https://github.com/maxmind/GeoIP2-php)；
 
 
 ## webman 中使用

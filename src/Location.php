@@ -43,6 +43,7 @@ class Location
             self::DB_COUNTRY => "/GeoLite2-Country.mmdb",
         ];
 
+
     /**
      * @param array|null $config = [
      *  'default'  => '--',
