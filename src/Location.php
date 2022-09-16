@@ -89,6 +89,25 @@ class Location
         return self::$readers[$db];
     }
 
+    /**
+     * @param string|null $db
+     * @return void
+     * @datetime 2022/09/16 11:12
+     * @author chaz6chez<chaz6chez1993@outlook.com>
+     */
+    public function removeReader(?string $db = null): void
+    {
+        if($db === null){
+            foreach (self::$readers as $reader){
+                $reader->close();
+            }
+            self::$readers = [];
+        }elseif(isset(self::$readers[$db])){
+            self::$readers[$db]->close();
+            unset(self::$readers[$db]);
+        }
+    }
+
 
     /**
      * @param string $ip
