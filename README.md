@@ -11,13 +11,13 @@
         <img src="https://github.com/workbunny/webman-ip-attribution/actions/workflows/CI.yml/badge.svg" alt="Build Status">
     </a>
     <a href="https://github.com/workbunny/webman-ip-attribution/releases">
-        <img alt="Latest Stable Version" src="http://poser.pugx.org/workbunny/webman-ip-attribution/v">
+        <img alt="Latest Stable Version" src="https://badgen.net/packagist/v/workbunny/webman-ip-attribution/latest">
     </a>
     <a href="https://github.com/workbunny/webman-ip-attribution/blob/main/composer.json">
-        <img alt="PHP Version Require" src="http://poser.pugx.org/workbunny/webman-ip-attribution/require/php">
+        <img alt="PHP Version Require" src="https://badgen.net/packagist/php/workbunny/webman-ip-attribution">
     </a>
     <a href="https://github.com/workbunny/webman-ip-attribution/blob/main/LICENSE">
-        <img alt="GitHub license" src="http://poser.pugx.org/workbunny/webman-ip-attribution/license">
+        <img alt="GitHub license" src="https://badgen.net/packagist/license/workbunny/webman-ip-attribution">
     </a>
 </div>
 
