@@ -15,10 +15,10 @@ class LocationTest extends AbstractTest
 
         $this->assertEquals([
             'country' => 'United States',
-            'city' => '--',
+            'city' => 'Los Angeles',
             'asn' => 'GOOGLE',
             'continent' => 'North America',
-            'timezone' => 'America/Chicago',
+            'timezone' => 'America/Los_Angeles',
         ], $res);
     }
 
@@ -28,10 +28,10 @@ class LocationTest extends AbstractTest
 
         $this->assertEquals([
             'country' => 'United States',
-            'city' => '--',
+            'city' => 'Los Angeles',
             'asn' => 'GOOGLE',
             'continent' => 'North America',
-            'timezone' => 'America/Chicago',
+            'timezone' => 'America/Los_Angeles',
         ], $res);
     }
 
