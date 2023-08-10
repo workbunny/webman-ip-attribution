@@ -18,7 +18,7 @@ class LocationTest extends AbstractTest
             'city' => 'Los Angeles',
             'asn' => 'GOOGLE',
             'continent' => 'North America',
-            'timezone' => 'America/Los_Angeles',
+            'timezone' => 'America/Chicago',
         ], $res);
     }
 
@@ -31,7 +31,7 @@ class LocationTest extends AbstractTest
             'city' => 'Los Angeles',
             'asn' => 'GOOGLE',
             'continent' => 'North America',
-            'timezone' => 'America/Los_Angeles',
+            'timezone' => 'America/Chicago',
         ], $res);
     }
 
