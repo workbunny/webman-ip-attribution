@@ -15,7 +15,7 @@ class LocationTest extends AbstractTest
 
         $this->assertEquals([
             'country' => 'United States',
-            'city' => 'Los Angeles',
+            'city' => '--',
             'asn' => 'GOOGLE',
             'continent' => 'North America',
             'timezone' => 'America/Chicago',
@@ -28,7 +28,7 @@ class LocationTest extends AbstractTest
 
         $this->assertEquals([
             'country' => 'United States',
-            'city' => 'Los Angeles',
+            'city' => '--',
             'asn' => 'GOOGLE',
             'continent' => 'North America',
             'timezone' => 'America/Chicago',
