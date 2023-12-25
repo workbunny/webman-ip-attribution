@@ -24,7 +24,10 @@
 
 ## 简介
 
-- 该插件自带ip本地库，存放于`/database`； 最后更新时间：2023-08-10 **(空了就时不时更新一下)**
+- 该插件自带ip本地库，存放于`/database`； 最后更新时间：2023-12-25 **(空了就时不时更新一下)** 
+  - **注：由于db文件比较大，强烈建议外载**
+    1. 至 https://www.maxmind.com/ 注册账号
+    2. 进入下载页面下载对应db文件
 - `webman-ip-attribution` 是基于`geoip2`作为底层，依托 `mmdb数据库` 查询ip归属地及asn信息
 - 本项目基于[geoip2/geoip2](https://github.com/maxmind/GeoIP2-php)，感谢[MaxMind](https://github.com/maxmind) 工作组的开源
 
