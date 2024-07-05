@@ -66,9 +66,9 @@ class Location
         $this->language = $config['language'] ?? ['en'];
         $this->default = $config['default'] ?? '--';
 
-        $this->db[self::DB_COUNTRY] = $config['db-country'] ?? $this->db[self::DB_COUNTRY];
-        $this->db[self::DB_CITY] = $config['db-city'] ?? $this->db[self::DB_CITY];
-        $this->db[self::DB_ASN] = $config['db-asn'] ?? $this->db[self::DB_ASN];
+        $this->db[self::DB_COUNTRY] = ($config['db-country'] ?? null) ?: ($this->path . $this->db[self::DB_COUNTRY]);
+        $this->db[self::DB_CITY] = ($config['db-city'] ?? null) ?: ($this->path . $this->db[self::DB_CITY]);
+        $this->db[self::DB_ASN] = ($config['db-asn'] ?? null) ?: ($this->path . $this->db[self::DB_ASN]);
     }
 
     /**
@@ -94,7 +94,7 @@ class Location
         }
         if(!(self::$readers[$db] ?? null) instanceof Reader){
             try {
-                self::$readers[$db] = new Reader($this->path . '/' . $this->db[$db], $this->language);
+                self::$readers[$db] = new Reader($this->db[$db], $this->language);
             } catch (InvalidDatabaseException $e) {
                 throw new IpAttributionException( 'Reader Exceptions. ', -1, $e);
             }
